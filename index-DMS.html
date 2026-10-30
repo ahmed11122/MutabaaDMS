@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mutabaa DMS</title>
+<style>
+:root{--bg:#eef2f7;--sf:#fff;--tx:#14202e;--mu:#667487;--bd:#dde4ec;--pr:#0b5cad;--pt:#fff;--hv:#e9f0f9;--sl:#d9e8f9;--ok:#1f7a3a;--wn:#a35f00;--bd2:#b3261e;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1620;--sf:#18222f;--tx:#e6edf5;--mu:#93a1b3;--bd:#2a3748;--pr:#5aa5ee;--pt:#07121f;--hv:#1f2c3b;--sl:#23405f;--ok:#6cc58a;--wn:#e0a24a;--bd2:#f08a83}}
+:root[data-theme="dark"]{--bg:#0f1620;--sf:#18222f;--tx:#e6edf5;--mu:#93a1b3;--bd:#2a3748;--pr:#5aa5ee;--pt:#07121f;--hv:#1f2c3b;--sl:#23405f;--ok:#6cc58a;--wn:#e0a24a;--bd2:#f08a83}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.4 "Segoe UI",Tahoma,system-ui,sans-serif}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+#app{height:100%;display:flex;flex-direction:column}
+.login{height:100%;display:grid;place-items:center;padding:16px}
+.lc{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:28px;width:100%;max-width:340px;display:grid;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;color:var(--pr)}
+.logo i{width:30px;height:30px;border-radius:50%;border:6px solid var(--pr);box-sizing:border-box;display:inline-block;position:relative}
+.logo i:after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--pr)}
+.lc label{display:grid;gap:4px;color:var(--mu);font-size:13px}
+.lc input,.lc select{padding:10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg)}
+.btn{background:var(--pr);color:var(--pt);border:0;border-radius:999px;padding:9px 18px;font-weight:600}
+.btn.s{background:transparent;color:var(--pr);border:1px solid var(--bd)}
+.btn.s:hover{background:var(--hv)}
+.top{display:flex;align-items:center;gap:12px;padding:8px 14px;background:var(--pr);color:var(--pt)}
+.top .logo{color:var(--pt);font-size:17px}.top .logo i{border-color:var(--pt)}.top .logo i:after{background:var(--pt)}
+.top input{flex:1;max-width:440px;margin-inline:auto;padding:8px 14px;border-radius:999px;border:0;background:rgba(255,255,255,.2);color:var(--pt)}
+.top input::placeholder{color:var(--pt);opacity:.75}
+.top button{background:rgba(255,255,255,.18);color:var(--pt);border:0;border-radius:999px;padding:6px 12px}
+.body{flex:1;min-height:0;display:flex}
+.side{width:210px;padding:12px 8px;display:flex;flex-direction:column;gap:2px;border-inline-end:1px solid var(--bd);background:var(--sf)}
+.side button{text-align:start;background:none;border:0;padding:9px 12px;border-radius:999px;display:flex;justify-content:space-between}
+.side button:hover{background:var(--hv)}
+.side button.on{background:var(--sl);font-weight:600}
+.side em{font-style:normal;color:var(--mu);font-size:12px}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--sf)}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 16px;position:relative}
+.crumbs{flex:1;font-size:17px;font-weight:600;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.crumbs a{color:var(--tx);cursor:pointer}.crumbs a:hover{color:var(--pr)}.crumbs span{color:var(--mu);font-weight:400}
+.menu{position:absolute;inset-inline-start:16px;top:46px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:6px;z-index:5;display:none;min-width:190px;box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.menu.o{display:block}
+.menu button{display:block;width:100%;text-align:start;background:none;border:0;padding:8px 10px;border-radius:6px}
+.menu button:hover{background:var(--hv)}
+.list{flex:1;overflow:auto}
+.row{display:grid;grid-template-columns:1fr 90px 120px;align-items:center;gap:8px;padding:8px 16px;border-top:1px solid var(--bd);cursor:pointer}
+.row.h{position:sticky;top:0;background:var(--sf);color:var(--mu);font-size:13px;cursor:default;border-top:0;border-bottom:1px solid var(--bd)}
+.row:not(.h):hover{background:var(--hv)}
+.row.sel{background:var(--sl)}
+.nm{display:flex;align-items:center;gap:10px;min-width:0}
+.nm b{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ic{flex:none;width:32px;height:32px;border-radius:7px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:15px}
+.ic.docx{background:#2b6cb8}.ic.xlsx{background:#1f8a4c}.ic.pdf{background:#c9372c}.ic.folder{background:none;font-size:24px}
+.tag{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.tag.lk{color:var(--wn)}.tag.approved{color:var(--ok)}.tag.rejected{color:var(--bd2)}.tag.submitted{color:var(--pr)}.tag.draft{color:var(--mu)}
+.mu{color:var(--mu);font-size:13px}
+.empty{padding:48px 16px;text-align:center;color:var(--mu)}
+.panel{width:310px;border-inline-start:1px solid var(--bd);background:var(--sf);padding:16px;overflow:auto;display:none}
+.panel.o{display:block}
+.panel h3{margin:8px 0 2px;word-break:break-word}
+.tabs{display:flex;gap:4px;margin:14px 0 10px;border-bottom:1px solid var(--bd)}
+.tabs button{background:none;border:0;padding:8px 10px;border-bottom:2px solid transparent;color:var(--mu)}
+.tabs button.on{color:var(--pr);border-color:var(--pr);font-weight:600}
+.kv{display:grid;grid-template-columns:90px 1fr;gap:6px;font-size:14px}.kv span:nth-child(odd){color:var(--mu)}
+.act{display:grid;gap:8px;margin-top:14px}
+.li{padding:8px 0;border-bottom:1px solid var(--bd);font-size:14px}
+.toast{position:fixed;inset-inline:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:420px;margin-inline:auto;background:var(--tx);color:var(--bg);padding:10px 14px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
+.toast.o{opacity:1}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--pr);outline-offset:2px}
+@media(max-width:760px){
+.body{flex-direction:column}
+.side{width:auto;flex-direction:row;overflow-x:auto;border-inline-end:0;border-bottom:1px solid var(--bd);padding:6px}
+.side button{white-space:nowrap;gap:6px}
+.row{grid-template-columns:1fr 66px 84px;padding:8px 12px}
+.panel{position:fixed;inset-inline:0;bottom:0;width:auto;max-height:70%;border-top:1px solid var(--bd);box-shadow:0 -6px 24px rgba(0,0,0,.2);z-index:6}
+.top input{min-width:0}
+}
+</style></head><body>
+<div id="app"></div><div class="toast" id="toast"></div>
+<script>
+const T={en:{si:"Sign in",em:"Email",pw:"Password",ro:"Role",all:"All files",rec:"Recent",lk:"Locked",rv:"Needs review",nw:"New",nm:"Name",sz:"Size",md:"Modified",se:"Search files…",de:"Details",ve:"Versions",ac:"Activity",lb:"Locked by",out:"Sign out",wd:"Word document",xl:"Excel spreadsheet",up:"Upload file",fo:"New folder",em0:"No files here. Use New to create or upload one.",op:"Open and edit",rl:"Release lock",dl:"Download",ap:"Approve",bk:"Send back to employee",employee:"Employee",manager:"Manager",admin:"Admin",draft:"Draft",submitted:"Submitted",approved:"Approved",rejected:"Needs changes",st:"Status",ty:"Type",fr:"Free",cur:"Current version",demo:"Demo data. Connect Firebase to make it live.",ar:"العربية"},
+ar:{si:"تسجيل الدخول",em:"البريد الإلكتروني",pw:"كلمة المرور",ro:"الدور",all:"كل الملفات",rec:"الأخيرة",lk:"مقفلة",rv:"بانتظار المراجعة",nw:"جديد",nm:"الاسم",sz:"الحجم",md:"آخر تعديل",se:"ابحث في الملفات…",de:"التفاصيل",ve:"الإصدارات",ac:"النشاط",lb:"مقفل بواسطة",out:"تسجيل الخروج",wd:"مستند Word",xl:"جدول Excel",up:"رفع ملف",fo:"مجلد جديد",em0:"لا توجد ملفات هنا. استخدم جديد للإنشاء أو الرفع.",op:"فتح وتحرير",rl:"إلغاء القفل",dl:"تنزيل",ap:"اعتماد",bk:"إعادة للموظف",employee:"موظف",manager:"مدير",admin:"مسؤول",draft:"مسودة",submitted:"مرسل",approved:"معتمد",rejected:"يحتاج تعديل",st:"الحالة",ty:"النوع",fr:"غير مقفل",cur:"الإصدار الحالي",demo:"بيانات تجريبية. اربط Firebase لتصبح فعلية.",ar:"English"}};
+let S={u:null,role:"employee",stack:[null],sel:null,view:"all",q:"",lang:"en",tab:0,n:100};
+const K=1024,M=K*K;
+let D=[
+{id:1,p:null,n:"Contracts",t:"folder"},{id:2,p:null,n:"HR",t:"folder"},{id:3,p:null,n:"Finance",t:"folder"},{id:4,p:null,n:"Monthly reports",t:"folder"},
+{id:10,p:null,n:"Office policy.pdf",t:"pdf",s:820*K,m:3*1440,l:null,st:"approved"},
+{id:11,p:null,n:"Meeting notes.docx",t:"docx",s:46*K,m:25,l:"Sara",st:"draft"},
+{id:12,p:null,n:"Team schedule.xlsx",t:"xlsx",s:131*K,m:190,l:null,st:"submitted"},
+{id:20,p:1,n:"Supplier contract.docx",t:"docx",s:98*K,m:2*1440,l:null,st:"submitted"},
+{id:21,p:1,n:"Lease agreement.pdf",t:"pdf",s:2.4*M,m:9*1440,l:null,st:"approved"},
+{id:30,p:2,n:"Leave requests.xlsx",t:"xlsx",s:74*K,m:60,l:"Omar",st:"draft"},
+{id:31,p:2,n:"Job description.docx",t:"docx",s:38*K,m:5*1440,l:null,st:"rejected"},
+{id:40,p:3,n:"Invoices October.xlsx",t:"xlsx",s:312*K,m:340,l:null,st:"submitted"},
+{id:41,p:3,n:"Budget 2027.xlsx",t:"xlsx",s:1.2*M,m:1440,l:"Sara",st:"draft"},
+{id:50,p:4,n:"September report.docx",t:"docx",s:210*K,m:20*1440,l:null,st:"approved"},
+{id:51,p:4,n:"October report.docx",t:"docx",s:188*K,m:12,l:null,st:"draft"}];
+const $=s=>document.querySelector(s),t=k=>T[S.lang][k]||k;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fs=b=>b==null?"—":b<K?b+" B":b<M?Math.round(b/K)+" KB":(b/M).toFixed(1)+" MB";
+const ago=m=>{const r=new Intl.RelativeTimeFormat(S.lang,{numeric:"auto"});return m<60?r.format(-Math.max(1,Math.round(m)),"minute"):m<1440?r.format(-Math.round(m/60),"hour"):r.format(-Math.round(m/1440),"day")};
+const ico=i=>`<span class="ic ${i.t}">${{docx:"W",xlsx:"X",pdf:"P",folder:"📁"}[i.t]}</span>`;
+const mgr=()=>S.role!=="employee";
+function toast(m){const e=$("#toast");e.textContent=m;e.classList.add("o");clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove("o"),2600)}
+function login(){
+ document.documentElement.dir=S.lang==="ar"?"rtl":"ltr";document.documentElement.lang=S.lang;
+ $("#app").innerHTML=`<div class="login"><div class="lc"><div class="logo"><i></i>Mutabaa DMS</div>
+ <label>${t("em")}<input id="em" type="email" value="sara@company.com"></label>
+ <label>${t("pw")}<input id="pw" type="password" value="demo1234"></label>
+ <label>${t("ro")}<select id="ro"><option value="employee">${t("employee")}</option><option value="manager">${t("manager")}</option><option value="admin">${t("admin")}</option></select></label>
+ <button class="btn" id="go">${t("si")}</button><button class="btn s" id="lg">${t("ar")}</button><span class="mu">${t("demo")}</span></div></div>`;
+ $("#ro").value=S.role;
+ $("#lg").onclick=()=>{S.lang=S.lang==="en"?"ar":"en";S.role=$("#ro").value;login()};
+ $("#go").onclick=()=>{S.role=$("#ro").value;const n=$("#em").value.split("@")[0]||"User";S.u=n[0].toUpperCase()+n.slice(1);S.stack=[null];S.sel=null;S.view="all";shell()}
+}
+function shell(){
+ document.documentElement.dir=S.lang==="ar"?"rtl":"ltr";document.documentElement.lang=S.lang;
+ $("#app").innerHTML=`<div class="top"><div class="logo"><i></i>Mutabaa DMS</div><input id="q" type="search" placeholder="${t("se")}" value="${esc(S.q)}"><button id="lg">${t("ar")}</button><button id="so">${esc(S.u)} · ${t("out")}</button></div>
+ <div class="body"><nav class="side" id="nav"></nav><section class="main"><div class="bar"><button class="btn" id="nb">+ ${t("nw")}</button><div class="crumbs" id="cr"></div>
+ <div class="menu" id="mn"><button data-a="docx">${t("wd")}</button><button data-a="xlsx">${t("xl")}</button><button data-a="folder">${t("fo")}</button><button data-a="up">${t("up")}</button></div></div>
+ <div class="list" id="ls"></div></section><aside class="panel" id="pn"></aside></div><input type="file" id="fi" hidden multiple>`;
+ $("#q").oninput=e=>{S.q=e.target.value;list()};
+ $("#lg").onclick=()=>{S.lang=S.lang==="en"?"ar":"en";shell()};
+ $("#so").onclick=()=>{S.u=null;login()};
+ $("#nb").onclick=e=>{e.stopPropagation();$("#mn").classList.toggle("o")};
+ document.onclick=()=>{const m=$("#mn");m&&m.classList.remove("o")};
+ $("#mn").onclick=e=>{const a=e.target.dataset.a;if(!a)return;if(a==="up")$("#fi").click();else add(a)};
+ $("#fi").onchange=e=>{[...e.target.files].forEach(f=>{const x=f.name.split(".").pop().toLowerCase();D.push({id:S.n++,p:cur(),n:f.name,t:["docx","xlsx","pdf"].includes(x)?x:"pdf",s:f.size,m:0,l:null,st:"draft"})});list();nav()};
+ nav();list();pane();
+}
+const cur=()=>S.stack[S.stack.length-1];
+function add(a){
+ const sib=D.filter(i=>i.p===cur()&&i.t===a).length+1;
+ const n=a==="folder"?`${t("fo")} ${sib}`:`${a==="docx"?"Document":"Spreadsheet"} ${sib}.${a}`;
+ D.push(a==="folder"?{id:S.n++,p:cur(),n,t:a}:{id:S.n++,p:cur(),n,t:a,s:a==="docx"?12*K:8*K,m:0,l:null,st:"draft"});list();nav();toast(n)
+}
+function files(){
+ if(S.q)return D.filter(i=>i.n.toLowerCase().includes(S.q.toLowerCase()));
+ if(S.view==="rec")return D.filter(i=>i.t!=="folder").sort((a,b)=>a.m-b.m).slice(0,8);
+ if(S.view==="lk")return D.filter(i=>i.l);
+ if(S.view==="rv")return D.filter(i=>i.st==="submitted");
+ return D.filter(i=>i.p===cur())
+}
+function nav(){
+ const c=v=>v==="lk"?D.filter(i=>i.l).length:D.filter(i=>i.st==="submitted").length;
+ const it=[["all",t("all")],["rec",t("rec")],["lk",t("lk"),c("lk")]];if(mgr())it.push(["rv",t("rv"),c("rv")]);
+ $("#nav").innerHTML=it.map(([v,l,n])=>`<button data-v="${v}" class="${S.view===v?"on":""}">${l}${n!=null?`<em>${n}</em>`:""}</button>`).join("");
+ $("#nav").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.view=b.dataset.v;S.q="";const q=$("#q");if(q)q.value="";if(S.view==="all")S.stack=[null];list();nav()}
+}
+function list(){
+ const rows=files().sort((a,b)=>(a.t==="folder"?0:1)-(b.t==="folder"?0:1)||a.n.localeCompare(b.n));
+ const names=[[t("all"),null],...S.stack.slice(1).map(id=>[D.find(x=>x.id===id).n,id])];
+ $("#cr").innerHTML=S.view!=="all"||S.q?`<a>${S.q?esc(S.q):{rec:t("rec"),lk:t("lk"),rv:t("rv")}[S.view]}</a>`:names.map(([n,id],i)=>(i?"<span>/</span>":"")+`<a data-id="${id}">${esc(n)}</a>`).join("");
+ $("#cr").onclick=e=>{const a=e.target.closest("a");if(!a||a.dataset.id===undefined)return;const id=a.dataset.id==="null"?null:+a.dataset.id;S.stack=id===null?[null]:S.stack.slice(0,S.stack.indexOf(id)+1);S.sel=null;list();pane()};
+ $("#ls").innerHTML=`<div class="row h"><span>${t("nm")}</span><span>${t("sz")}</span><span>${t("md")}</span></div>`+(rows.length?rows.map(i=>`<div class="row ${S.sel===i.id?"sel":""}" data-id="${i.id}"><span class="nm">${ico(i)}<b>${esc(i.n)}</b>${i.l?`<span class="tag lk">🔒 ${esc(i.l)}</span>`:""}</span><span class="mu">${fs(i.s)}</span><span class="mu">${i.t==="folder"?"":ago(i.m)}</span></div>`).join(""):`<div class="empty">${t("em0")}</div>`);
+ $("#ls").onclick=e=>{const r=e.target.closest(".row");if(!r||r.classList.contains("h"))return;const i=D.find(x=>x.id===+r.dataset.id);
+  if(i.t==="folder"){S.view="all";S.q="";S.stack.push(i.id);S.sel=null;nav()}else S.sel=i.id;list();pane()}
+}
+function pane(){
+ const p=$("#pn"),i=D.find(x=>x.id===S.sel);if(!i){p.classList.remove("o");return}
+ p.classList.add("o");const mine=i.l===S.u;
+ const tabs=["de","ve","ac"].map((k,n)=>`<button class="${S.tab===n?"on":""}" data-t="${n}">${t(k)}</button>`).join("");
+ let body;
+ if(S.tab===0)body=`<div class="kv"><span>${t("ty")}</span><span>${i.t.toUpperCase()}</span><span>${t("sz")}</span><span>${fs(i.s)}</span><span>${t("md")}</span><span>${ago(i.m)}</span><span>${t("st")}</span><span><span class="tag ${i.st}">${t(i.st)}</span></span><span>${t("lb")}</span><span>${i.l?esc(i.l):t("fr")}</span></div>
+ <div class="act"><button class="btn" data-a="op">${t("op")}</button>${mine?`<button class="btn s" data-a="rl">${t("rl")}</button>`:""}<button class="btn s" data-a="dl">${t("dl")}</button>
+ ${mgr()&&i.st==="submitted"?`<button class="btn" data-a="ap">${t("ap")}</button><button class="btn s" data-a="bk">${t("bk")}</button>`:""}</div>`;
+ else if(S.tab===1)body=[3,2,1].map((v,k)=>`<div class="li"><b>v${v}</b>${k?"":` <span class="tag approved">${t("cur")}</span>`}<div class="mu">${["Sara","Omar","Sara"][k]} · ${ago(i.m+k*400+5)} · ${fs(i.s?i.s-k*3*K:0)}</div></div>`).join("");
+ else body=[["Sara","opened"],["Sara","saved v3"],["Omar","saved v2"]].map(([u,a],k)=>`<div class="li">${u} · ${a}<div class="mu">${ago(i.m+k*90+2)}</div></div>`).join("");
+ p.innerHTML=`<div class="ic ${i.t}">${{docx:"W",xlsx:"X",pdf:"P",folder:""}[i.t]}</div><h3>${esc(i.n)}</h3><div class="tabs">${tabs}</div>${body}`;
+ p.onclick=e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.t){S.tab=+b.dataset.t;pane();return}
+  const a=b.dataset.a;
+  if(a==="op"){if(i.l&&!mine)toast(`${t("lb")} ${i.l}`);else{i.l=S.u;toast("myapp://edit/"+i.id);list();pane();nav()}}
+  if(a==="rl"){i.l=null;list();pane();nav()}
+  if(a==="dl")toast(i.n);
+  if(a==="ap"){i.st="approved";list();pane();nav()}
+  if(a==="bk"){i.st="rejected";list();pane();nav()}}
+}
+</script>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+import{getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
+import{getFirestore,collection,doc,getDoc,addDoc,setDoc,updateDoc,onSnapshot,runTransaction,serverTimestamp,Timestamp}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+import{getStorage,ref as sref,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-storage.js";
+const app=initializeApp({apiKey:"AIzaSyBys_sC2GqWQNqekbf6Tr6jx6MudZs3vLQ",authDomain:"mutabaa-dms.firebaseapp.com",projectId:"mutabaa-dms",storageBucket:"mutabaa-dms.firebasestorage.app",messagingSenderId:"317850299351",appId:"1:317850299351:web:9b9bacfc6442296790b992"});
+const auth=getAuth(app),db=getFirestore(app),storage=getStorage(app);
+const ar=()=>S.lang==="ar";
+let LE="",unsub=null;D=[];
+const ids=new Map();let nn=1000;
+const num=f=>f==null?null:(ids.has(f)||ids.set(f,nn++),ids.get(f));
+const fidOf=n=>{for(const[k,v]of ids)if(v===n)return k;return null};
+const uid=()=>auth.currentUser.uid;
+const fail=e=>toast(e.code==="permission-denied"?(ar()?"غير مسموح":"Not allowed"):e.message);
+
+function onFiles(snap){
+ const now=Date.now();
+ D=snap.docs.map(d=>{const x=d.data(),ex=x.lockExpiresAt?.toMillis?.()??0;
+  return{id:num(d.id),fid:d.id,p:num(x.folderId||null),n:x.name,t:x.type,s:x.type==="folder"?undefined:x.size,m:(now-(x.updatedAt?.toMillis?.()??now))/60000,l:x.lockedBy&&ex>now?x.lockedByName:null,st:x.status,sp:x.storagePath}});
+ if(S.u){list();nav();pane()}
+}
+
+window.login=function(){
+ document.documentElement.dir=ar()?"rtl":"ltr";document.documentElement.lang=S.lang;
+ $("#app").innerHTML=`<div class="login"><div class="lc"><div class="logo"><i></i>Mutabaa DMS</div>
+ <label>${t("em")}<input id="em" type="email" autocomplete="username"></label>
+ <label>${t("pw")}<input id="pw" type="password" autocomplete="current-password"></label>
+ <button class="btn" id="go">${t("si")}</button><button class="btn s" id="lg">${t("ar")}</button>
+ <span class="mu" id="er" style="color:var(--bd2)">${LE}</span></div></div>`;
+ $("#lg").onclick=()=>{S.lang=ar()?"en":"ar";login()};
+ const go=async()=>{LE="";try{await signInWithEmailAndPassword(auth,$("#em").value.trim(),$("#pw").value)}catch(e){$("#er").textContent=ar()?"البريد أو كلمة المرور غير صحيحة":"Wrong email or password"}};
+ $("#go").onclick=go;$("#pw").onkeydown=e=>e.key==="Enter"&&go();
+};
+
+onAuthStateChanged(auth,async u=>{
+ unsub&&unsub();unsub=null;
+ if(!u){S.u=null;D=[];login();return}
+ try{
+  const s=await getDoc(doc(db,"users",u.uid)),x=s.data();
+  if(!s.exists()||x.active!==true)throw 0;
+  S.u=x.name||u.email.split("@")[0];S.role=x.role;S.stack=[null];S.sel=null;S.view="all";
+  unsub=onSnapshot(collection(db,"files"),onFiles,fail);
+  shell();
+ }catch(e){LE=ar()?"هذا الحساب غير مفعّل":"This account has no access";await signOut(auth)}
+});
+
+const sh0=shell;
+window.shell=function(){sh0();$("#fi").onchange=upload;$("#so").onclick=()=>signOut(auth)};
+
+window.add=async a=>{
+ if(a!=="folder"){toast(ar()?"قوالب Word وExcel تأتي لاحقاً. ارفع ملفاً الآن.":"Word and Excel templates come next. Upload a file for now.");return}
+ const k=D.filter(i=>i.p===cur()&&i.t==="folder").length+1;
+ try{await addDoc(collection(db,"files"),{name:`${t("fo")} ${k}`,folderId:fidOf(cur()),type:"folder",ownerId:uid(),createdAt:serverTimestamp(),updatedAt:serverTimestamp()})}catch(e){fail(e)}
+};
+
+async function upload(e){
+ const list_=[...e.target.files];e.target.value="";
+ for(const f of list_){
+  const x=f.name.split(".").pop().toLowerCase();
+  if(!["docx","xlsx","pdf"].includes(x)){toast(ar()?"الأنواع المسموحة: Word وExcel وPDF":"Only Word, Excel and PDF files");continue}
+  try{
+   const r=await addDoc(collection(db,"files"),{name:f.name,folderId:fidOf(cur()),type:x,size:f.size,status:"draft",currentVersion:1,ownerId:uid(),ownerName:S.u,lockedBy:null,lockedByName:null,lockExpiresAt:null,storagePath:"",createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+   const path=`files/${r.id}/v1`;
+   await uploadBytes(sref(storage,path),f);
+   await updateDoc(r,{storagePath:path});
+   await setDoc(doc(db,"files",r.id,"versions","1"),{storagePath:path,size:f.size,createdBy:uid(),createdAt:serverTimestamp()});
+   toast(f.name)
+  }catch(err){fail(err)}
+ }
+}
+
+const lock=r=>runTransaction(db,async tx=>{
+ const x=(await tx.get(r)).data(),now=Date.now(),ex=x.lockExpiresAt?.toMillis?.()??0;
+ if(x.lockedBy&&x.lockedBy!==uid()&&ex>now)throw new Error(`${t("lb")} ${x.lockedByName}`);
+ tx.update(r,{lockedBy:uid(),lockedByName:S.u,lockExpiresAt:Timestamp.fromMillis(now+600000),updatedAt:serverTimestamp()})
+});
+const upd=(r,o)=>updateDoc(r,{...o,updatedAt:serverTimestamp()});
+
+const pane0=pane;
+window.pane=function(){
+ pane0();
+ const p=$("#pn"),i=D.find(x=>x.id===S.sel);if(!i)return;
+ const act=p.querySelector(".act");
+ if(act&&["draft","rejected"].includes(i.st)&&(!i.l||i.l===S.u))act.insertAdjacentHTML("beforeend",`<button class="btn s" data-a="sb">${ar()?"إرسال للمراجعة":"Submit for review"}</button>`);
+ p.onclick=async e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.t){S.tab=+b.dataset.t;pane();return}
+  const a=b.dataset.a,r=doc(db,"files",i.fid);
+  try{
+   if(a==="op"||a==="dl"){
+    if(a==="op")await lock(r);
+    if(!i.sp){toast(ar()?"الملف قيد الرفع":"File is still uploading");return}
+    window.open(await getDownloadURL(sref(storage,i.sp)),"_blank")
+   }
+   if(a==="rl")await upd(r,{lockedBy:null,lockedByName:null,lockExpiresAt:null});
+   if(a==="sb")await upd(r,{status:"submitted"});
+   if(a==="ap"||a==="bk"){
+    const d=a==="ap"?"approved":"rejected";
+    await upd(r,{status:d});
+    await addDoc(collection(db,"files",i.fid,"reviews"),{managerId:uid(),decision:d,createdAt:serverTimestamp()})
+   }
+  }catch(err){fail(err)}
+ }
+};
+</script></body></html>
