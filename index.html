@@ -213,7 +213,8 @@ import{getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,sendPasswor
 import{getFirestore,collection,doc,getDoc,addDoc,setDoc,updateDoc,onSnapshot,runTransaction,serverTimestamp,Timestamp}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 import{getStorage,ref as sref,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-storage.js";
 const app=initializeApp({apiKey:"AIzaSyBys_sC2GqWQNqekbf6Tr6jx6MudZs3vLQ",authDomain:"mutabaa-dms.firebaseapp.com",projectId:"mutabaa-dms",storageBucket:"mutabaa-dms.firebasestorage.app",messagingSenderId:"317850299351",appId:"1:317850299351:web:9b9bacfc6442296790b992"});
-const auth=getAuth(app),db=getFirestore(app),storage=getStorage(app);
+const DBID="mutabaa-dms";
+const auth=getAuth(app),db=DBID==="(default)"?getFirestore(app):getFirestore(app,DBID),storage=getStorage(app);
 const ar=()=>S.lang==="ar";
 let LE="",LM="",unsub=null;D=[];
 const ids=new Map();let nn=1000;
