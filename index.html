@@ -330,6 +330,7 @@ window.pane=function(){
    if(a==="op"||a==="dl"){
     if(a==="op")await lock(r);
     if(!i.sp){toast(ar()?"الملف قيد الرفع":"File is still uploading");return}
+    if(a==="op"){location.href="myapp://edit/"+i.fid;toast(ar()?"جارٍ فتح الملف في Word/Excel…":"Opening in Word/Excel…");return}
     window.open(await getDownloadURL(sref(storage,i.sp)),"_blank")
    }
    if(a==="rl")await upd(r,{lockedBy:null,lockedByName:null,lockExpiresAt:null});
