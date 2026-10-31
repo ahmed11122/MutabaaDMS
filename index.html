@@ -106,6 +106,28 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .msg.k{display:block;color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}
 .auth-foot{text-align:center;color:var(--mu);font-size:13px;margin-top:8px}
 @media(max-width:860px){.auth{grid-template-columns:1fr}.auth-brand{display:none}.auth-form .logo.m{display:flex}.auth-side{align-items:flex-start;padding-top:72px}}
+.kb{margin-inline-start:auto;background:none;border:0;color:var(--mu);font-size:20px;line-height:1;padding:2px 8px;border-radius:6px;cursor:pointer}
+.kb:hover{background:var(--sl);color:var(--tx)}
+.pm{position:fixed;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:6px;z-index:20;min-width:180px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.pm button{display:block;width:100%;text-align:start;background:none;border:0;padding:8px 10px;border-radius:6px;color:var(--tx);cursor:pointer}
+.pm button:hover{background:var(--hv)}.pm button.dg{color:var(--bd2)}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:30;padding:16px}
+.mb{background:var(--sf);color:var(--tx);border:1px solid var(--bd);border-radius:14px;padding:20px;width:100%;max-width:420px;display:grid;gap:12px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.mb h3{margin:0}.mb p{margin:0;color:var(--mu);font-size:14px}
+.mb input[type=text],.mb select{width:100%;box-sizing:border-box;padding:10px 12px;font-size:15px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx)}
+.mb .nmb{background:var(--bg);border:1px dashed var(--bd2);border-radius:8px;padding:8px 10px;font-weight:600;word-break:break-all;-webkit-user-select:none;user-select:none}
+.mb .er2{display:flex;gap:8px;align-items:center}.mb .er2 .ext{color:var(--mu);white-space:nowrap}
+.mbt{display:flex;gap:8px;justify-content:flex-end}
+.btn.dg{background:var(--bd2);color:#fff}.btn.s.dg{background:transparent;color:var(--bd2);border:1px solid var(--bd2)}
+.uw{padding:16px;display:grid;gap:16px}
+.uf{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;align-items:end;background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:14px}
+.uf h3{grid-column:1/-1;margin:0}.uf label{display:grid;gap:4px;font-size:13px;color:var(--mu)}
+.uf input,.uf select,.ur select{padding:9px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--sf);color:var(--tx);font-size:14px;min-width:0}
+.uf .msg{grid-column:1/-1}
+.ur{display:grid;grid-template-columns:1.2fr 1.5fr 120px auto;gap:8px;align-items:center;padding:10px 4px;border-top:1px solid var(--bd)}
+.ur .off{opacity:.55}.ur .acts{display:flex;gap:6px;flex-wrap:wrap}
+.ur button{background:none;border:1px solid var(--bd);color:var(--pr);border-radius:999px;padding:5px 10px;font-size:13px;cursor:pointer}
+@media(max-width:760px){.ur{grid-template-columns:1fr 1fr}}
 </style></head><body>
 <div id="app"></div><div class="toast" id="toast"></div>
 <script>
@@ -174,7 +196,7 @@ function files(){
 }
 function nav(){
  const c=v=>v==="lk"?D.filter(i=>i.l).length:D.filter(i=>i.st==="submitted").length;
- const it=[["all",t("all")],["rec",t("rec")],["lk",t("lk"),c("lk")]];if(mgr())it.push(["rv",t("rv"),c("rv")]);
+ const it=[["all",t("all")],["rec",t("rec")],["lk",t("lk"),c("lk")]];if(mgr())it.push(["rv",t("rv"),c("rv")]);if(mgr())it.push(["us",S.lang==="ar"?"المستخدمون":"Users"]);
  $("#nav").innerHTML=it.map(([v,l,n])=>`<button data-v="${v}" class="${S.view===v?"on":""}">${l}${n!=null?`<em>${n}</em>`:""}</button>`).join("");
  $("#nav").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.view=b.dataset.v;S.q="";const q=$("#q");if(q)q.value="";if(S.view==="all")S.stack=[null];list();nav()}
 }
@@ -208,10 +230,10 @@ function pane(){
 }
 </script>
 <script type="module">
-import{initializeApp}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
-import{getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,sendPasswordResetEmail,setPersistence,browserLocalPersistence,browserSessionPersistence}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
-import{getFirestore,collection,doc,getDoc,addDoc,setDoc,updateDoc,onSnapshot,runTransaction,serverTimestamp,Timestamp}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
-import{getStorage,ref as sref,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-storage.js";
+import{initializeApp,deleteApp}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+import{getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut,sendPasswordResetEmail,setPersistence,browserLocalPersistence,browserSessionPersistence}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
+import{getFirestore,collection,doc,getDoc,addDoc,setDoc,getDocs,updateDoc,deleteDoc,onSnapshot,runTransaction,serverTimestamp,Timestamp}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+import{getStorage,ref as sref,uploadBytes,getBytes,getDownloadURL,deleteObject}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-storage.js";
 const app=initializeApp({apiKey:"AIzaSyBys_sC2GqWQNqekbf6Tr6jx6MudZs3vLQ",authDomain:"mutabaa-dms.firebaseapp.com",projectId:"mutabaa-dms",storageBucket:"mutabaa-dms.firebasestorage.app",messagingSenderId:"317850299351",appId:"1:317850299351:web:9b9bacfc6442296790b992"});
 const DBID="mutabaa-dms";
 const auth=getAuth(app),db=DBID==="(default)"?getFirestore(app):getFirestore(app,DBID),storage=getStorage(app);
@@ -285,15 +307,17 @@ onAuthStateChanged(auth,async u=>{
 });
 
 const sh0=shell;
-window.shell=function(){sh0();$("#fi").onchange=upload;$("#so").onclick=()=>signOut(auth)};
+window.shell=function(){sh0();$("#fi").onchange=upload;$("#so").onclick=()=>signOut(auth);$("#ls").addEventListener("click",rowMenu,true)};
 
 window.add=async a=>{
+ if(!mgr())return;
  if(a!=="folder"){toast(ar()?"قوالب Word وExcel تأتي لاحقاً. ارفع ملفاً الآن.":"Word and Excel templates come next. Upload a file for now.");return}
  const k=D.filter(i=>i.p===cur()&&i.t==="folder").length+1;
  try{await addDoc(collection(db,"files"),{name:`${t("fo")} ${k}`,folderId:fidOf(cur()),type:"folder",ownerId:uid(),createdAt:serverTimestamp(),updatedAt:serverTimestamp()})}catch(e){fail(e)}
 };
 
 async function upload(e){
+ if(!mgr()){e.target.value="";return}
  const list_=[...e.target.files];e.target.value="";
  for(const f of list_){
   const x=f.name.split(".").pop().toLowerCase();
@@ -316,21 +340,59 @@ const lock=r=>runTransaction(db,async tx=>{
 });
 const upd=(r,o)=>updateDoc(r,{...o,updatedAt:serverTimestamp()});
 
+/* ---- Desktop app bridge: open in Word/Excel, save = new version ---- */
+const NS=new Map();
+async function pushVersion(s,bytes){
+ const id=s.r.id;
+ const snap=await getDocs(collection(db,"files",id,"versions"));
+ const next=Math.max(0,s.cv||0,s.tried||0,...snap.docs.map(d=>parseInt(d.id,10)||0))+1;
+ s.tried=next;
+ const p=`files/${id}/${next}`;
+ await uploadBytes(sref(storage,p),bytes);
+ await setDoc(doc(db,"files",id,"versions",String(next)),{storagePath:p,size:bytes.length,createdBy:uid(),createdAt:serverTimestamp()});
+ await upd(s.r,{storagePath:p,currentVersion:next,size:bytes.length});
+}
+async function nativeEdit(i,r){
+ if(NS.has(i.fid)){await window.dmsNative.open({id:i.fid,name:i.n,bytes:new Uint8Array(0)});return}
+ const url=await getDownloadURL(sref(storage,i.sp));
+ const cv=(await getDoc(r)).data()?.currentVersion||0;
+ await window.dmsNative.open({id:i.fid,name:i.n,url});
+ NS.set(i.fid,{r,cv,q:Promise.resolve(),hb:setInterval(()=>updateDoc(r,{lockExpiresAt:Timestamp.fromMillis(Date.now()+600000)}).catch(()=>{}),120000)});
+ toast(ar()?"تم فتح الملف. احفظ كالمعتاد وسيتم رفع نسخة جديدة":"Opened. Save as usual - each save becomes a new version")
+}
+if(window.dmsNative){
+ window.dmsNative.onChanged(({id,bytes})=>{const s=NS.get(id);if(!s)return;
+  s.q=s.q.then(async()=>{for(let k=0;k<4;k++){try{await pushVersion(s,new Uint8Array(bytes));toast(ar()?"تم حفظ نسخة جديدة":"New version saved");return}catch(e){await new Promise(z=>setTimeout(z,5000))}}toast(ar()?"فشل رفع النسخة - تحقق من الإنترنت":"Upload failed - check your internet")})});
+ window.dmsNative.onClosed(({id})=>{const s=NS.get(id);if(!s)return;clearInterval(s.hb);
+  s.q=s.q.then(()=>upd(s.r,{lockedBy:null,lockedByName:null,lockExpiresAt:null})).catch(()=>{}).then(()=>{NS.delete(id);toast(ar()?"تم إغلاق الملف وفك القفل":"File closed, lock released")})});
+}
+
+const list0=window.list;
+window.list=function(){
+ const nb=$("#nb");
+ if(S.q&&S.view==="us"){S.view="all";nav()}
+ if(nb)nb.style.display=(!mgr()||(S.view==="us"&&mgr()))?"none":"";
+ if(S.view==="us"&&mgr()){if(!$("#uf"))renderUsers();return}
+ list0.apply(this,arguments);
+ if(mgr())document.querySelectorAll("#ls .row:not(.h) .nm").forEach(n=>{const id=n.closest(".row").dataset.id;n.insertAdjacentHTML("beforeend",`<button class="kb" data-k="${id}" aria-label="More">\u22EF</button>`)})
+};
 const pane0=pane;
 window.pane=function(){
  pane0();
  const p=$("#pn"),i=D.find(x=>x.id===S.sel);if(!i)return;
  const act=p.querySelector(".act");
+ if(act&&mgr())act.insertAdjacentHTML("beforeend",`<button class="btn s" data-a="rn">${L("Rename","إعادة تسمية")}</button><button class="btn s" data-a="mv">${L("Move to folder","نقل إلى مجلد")}</button>${mgr()?`<button class="btn s dg" data-a="rm">${L("Delete","حذف")}</button>`:""}`);
  if(act&&["draft","rejected"].includes(i.st)&&(!i.l||i.l===S.u))act.insertAdjacentHTML("beforeend",`<button class="btn s" data-a="sb">${ar()?"إرسال للمراجعة":"Submit for review"}</button>`);
  p.onclick=async e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.dataset.t){S.tab=+b.dataset.t;pane();return}
   const a=b.dataset.a,r=doc(db,"files",i.fid);
+  if(ACT[a]){ACT[a](i);return}
   try{
    if(a==="op"||a==="dl"){
     if(a==="op")await lock(r);
     if(!i.sp){toast(ar()?"الملف قيد الرفع":"File is still uploading");return}
-    if(a==="op"){location.href="myapp://edit/"+i.fid;toast(ar()?"جارٍ فتح الملف في Word/Excel…":"Opening in Word/Excel…");return}
+    if(a==="op"&&window.dmsNative){try{await nativeEdit(i,r)}catch(x){await upd(r,{lockedBy:null,lockedByName:null,lockExpiresAt:null}).catch(()=>{});throw x}return}
     window.open(await getDownloadURL(sref(storage,i.sp)),"_blank")
    }
    if(a==="rl")await upd(r,{lockedBy:null,lockedByName:null,lockExpiresAt:null});
@@ -343,4 +405,175 @@ window.pane=function(){
   }catch(err){fail(err)}
  }
 };
+
+/* ---- Rename / Move to folder / Delete (type the name to confirm) ---- */
+const L=(en,a)=>ar()?a:en;
+const BAD=/[\\/:*?"<>|]/;
+function modal(html){
+ const o=document.createElement("div");o.className="mo";o.innerHTML=`<div class="mb" role="dialog" aria-modal="true">${html}</div>`;
+ document.body.appendChild(o);
+ const kd=e=>{if(e.key==="Escape")close()};
+ const close=()=>{o.remove();document.removeEventListener("keydown",kd)};
+ document.addEventListener("keydown",kd);
+ o.addEventListener("mousedown",e=>{if(e.target===o)close()});
+ return{o,close,q:s=>o.querySelector(s)};
+}
+const dRef=i=>doc(db,"files",i.fid);
+const kids=id=>{const s=new Set();const w=x=>D.filter(c=>c.p===x).forEach(c=>{s.add(c.id);w(c.id)});w(id);return s};
+const pathOf=id=>{const a=[];let c=D.find(x=>x.id===id);while(c){a.unshift(c.n);c=D.find(x=>x.id===c.p)}return a.join(" / ")};
+function blocked(i){
+ if(i.l&&i.l!==S.u){toast(`${t("lb")} ${i.l}`);return true}
+ return false;
+}
+function doRename(i){
+ if(blocked(i))return;
+ const isF=i.t==="folder",dot=isF?-1:i.n.lastIndexOf("."),ext=dot>0?i.n.slice(dot):"",base=ext?i.n.slice(0,dot):i.n;
+ const m=modal(`<h3>${L("Rename","إعادة تسمية")}</h3><div class="er2"><input id="mi" type="text" dir="auto" maxlength="120" autocomplete="off" value="${esc(base)}">${ext?`<span class="ext">${esc(ext)}</span>`:""}</div><div class="msg" id="me"></div><div class="mbt"><button class="btn s" id="mc">${L("Cancel","إلغاء")}</button><button class="btn" id="mk">${L("Save","حفظ")}</button></div>`);
+ const inp=m.q("#mi"),me=m.q("#me");inp.focus();inp.select();
+ const err=s=>{me.textContent=s;me.className="msg e"};
+ const go=async()=>{
+  const v=inp.value.trim();
+  if(!v)return err(L("Name cannot be empty","الاسم مطلوب"));
+  if(BAD.test(v))return err(L('Name cannot contain \\ / : * ? " < > |','الاسم لا يمكن أن يحتوي على \\ / : * ? " < > |'));
+  const nn=v+ext;
+  if(nn===i.n){m.close();return}
+  if(D.some(x=>x.p===i.p&&x.id!==i.id&&x.n.toLowerCase()===nn.toLowerCase()))return err(L("This name already exists here","هذا الاسم موجود مسبقاً هنا"));
+  m.q("#mk").disabled=true;
+  try{await upd(dRef(i),{name:nn});m.close();toast(L("Renamed","تمت إعادة التسمية"))}
+  catch(e){m.q("#mk").disabled=false;err(e.code==="permission-denied"?L("Not allowed","غير مسموح"):e.message)}
+ };
+ m.q("#mk").onclick=go;m.q("#mc").onclick=m.close;
+ inp.onkeydown=e=>{if(e.key==="Enter")go()};
+}
+function doMove(i){
+ if(blocked(i))return;
+ const ex=i.t==="folder"?new Set([i.id,...kids(i.id)]):new Set();
+ const opts=[];
+ if(i.p!==null)opts.push(["",t("all")]);
+ D.filter(x=>x.t==="folder"&&!ex.has(x.id)&&x.id!==i.p).forEach(x=>opts.push([x.id,pathOf(x.id)]));
+ const rest=opts.slice(i.p!==null?1:0).sort((a,b)=>a[1].localeCompare(b[1]));
+ const all=(i.p!==null?[opts[0]]:[]).concat(rest);
+ if(!all.length){toast(L("No other folder to move to","لا يوجد مجلد آخر للنقل إليه"));return}
+ const m=modal(`<h3>${L("Move to folder","نقل إلى مجلد")}</h3><p>${esc(i.n)}</p><select id="ms">${all.map(([v,l])=>`<option value="${v}">${esc(l)}</option>`).join("")}</select><div class="msg" id="me"></div><div class="mbt"><button class="btn s" id="mc">${L("Cancel","إلغاء")}</button><button class="btn" id="mk">${L("Move","نقل")}</button></div>`);
+ const me=m.q("#me");
+ m.q("#mc").onclick=m.close;
+ m.q("#mk").onclick=async()=>{
+  const v=m.q("#ms").value,tid=v===""?null:+v;
+  if(D.some(x=>x.p===tid&&x.id!==i.id&&x.n.toLowerCase()===i.n.toLowerCase())){me.textContent=L("A file with this name already exists in that folder","يوجد عنصر بنفس الاسم في ذلك المجلد");me.className="msg e";return}
+  m.q("#mk").disabled=true;
+  try{await upd(dRef(i),{folderId:tid===null?null:fidOf(tid)});m.close();S.sel=null;toast(L("Moved","تم النقل"))}
+  catch(e){m.q("#mk").disabled=false;me.textContent=e.code==="permission-denied"?L("Not allowed","غير مسموح"):e.message;me.className="msg e"}
+ };
+}
+function doDelete(i){
+ if(!mgr()){toast(L("Only managers can delete","الحذف للمدراء فقط"));return}
+ if(blocked(i))return;
+ if(NS.has(i.fid)){toast(L("Close the file in Word/Excel first","أغلق الملف في Word/Excel أولاً"));return}
+ const isF=i.t==="folder";
+ if(isF&&D.some(x=>x.p===i.id)){toast(L("Folder is not empty. Move or delete its files first.","المجلد غير فارغ. انقل ملفاته أو احذفها أولاً"));return}
+ const m=modal(`<h3>${isF?L("Delete folder","حذف المجلد"):L("Delete file","حذف الملف")}</h3><p>${isF?L("This deletes the empty folder.","سيتم حذف المجلد الفارغ."):L("This permanently deletes the file and all its versions. This cannot be undone.","سيتم حذف الملف وجميع إصداراته نهائياً. لا يمكن التراجع.")}</p><p>${L("Type the exact name below to confirm:","اكتب الاسم التالي بالضبط للتأكيد:")}</p><div class="nmb" dir="auto">${esc(i.n)}</div><input id="mi" type="text" dir="auto" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="msg" id="me"></div><div class="mbt"><button class="btn s" id="mc">${L("Cancel","إلغاء")}</button><button class="btn dg" id="mk" disabled>${L("Delete","حذف")}</button></div>`);
+ const inp=m.q("#mi"),bt=m.q("#mk"),me=m.q("#me");inp.focus();
+ ["paste","drop","contextmenu"].forEach(ev=>inp.addEventListener(ev,e=>e.preventDefault()));
+ inp.onkeydown=e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="v")e.preventDefault();if(e.key==="Enter"&&!bt.disabled)bt.click()};
+ inp.oninput=()=>{bt.disabled=inp.value!==i.n};
+ m.q("#mc").onclick=m.close;
+ bt.onclick=async()=>{
+  if(inp.value!==i.n)return;
+  bt.disabled=true;inp.disabled=true;
+  try{
+   const r=dRef(i),paths=new Set(),subs=[];
+   if(!isF){
+    if(i.sp)paths.add(i.sp);
+    try{(await getDocs(collection(db,"files",i.fid,"versions"))).docs.forEach(v=>{subs.push(v.ref);const p=v.data().storagePath;if(p)paths.add(p)})}catch(e){}
+    try{(await getDocs(collection(db,"files",i.fid,"reviews"))).docs.forEach(v=>subs.push(v.ref))}catch(e){}
+   }
+   await deleteDoc(r);
+   m.close();S.sel=null;toast(L("Deleted","تم الحذف"));
+   for(const p of paths){try{await deleteObject(sref(storage,p))}catch(e){}}
+   for(const s of subs){try{await deleteDoc(s)}catch(e){}}
+  }catch(e){bt.disabled=false;inp.disabled=false;me.textContent=e.code==="permission-denied"?L("Not allowed","غير مسموح"):e.message;me.className="msg e"}
+ };
+}
+const ACT={rn:i=>mgr()&&doRename(i),mv:i=>mgr()&&doMove(i),rm:doDelete};
+
+/* row "..." menu (works for files and folders) */
+let PM=null;
+const closePM=()=>{PM&&PM.remove();PM=null};
+document.addEventListener("click",e=>{if(PM&&!e.target.closest(".pm"))closePM()});
+function rowMenu(e){
+ const b=e.target.closest(".kb");if(!b||!mgr())return;
+ e.stopImmediatePropagation();e.preventDefault();
+ const i=D.find(x=>x.id===+b.dataset.k);if(!i)return;
+ if(PM&&PM.dataset.k===b.dataset.k){closePM();return}closePM();
+ const r=b.getBoundingClientRect();
+ PM=document.createElement("div");PM.className="pm";PM.dataset.k=b.dataset.k;
+ PM.innerHTML=`<button data-a="rn">${L("Rename","إعادة تسمية")}</button><button data-a="mv">${L("Move to folder","نقل إلى مجلد")}</button>${mgr()?`<button class="dg" data-a="rm">${L("Delete","حذف")}</button>`:""}`;
+ document.body.appendChild(PM);
+ const w=PM.offsetWidth,hh=PM.offsetHeight;
+ PM.style.top=Math.min(r.bottom+4,innerHeight-hh-8)+"px";
+ PM.style.left=Math.max(8,Math.min(document.dir==="rtl"||document.documentElement.dir==="rtl"?r.left:r.right-w,innerWidth-w-8))+"px";
+ PM.onclick=ev=>{const a=ev.target.closest("button")?.dataset.a;if(!a)return;closePM();ACT[a](i)};
+}
+
+/* ---- Admin: Users tab (create account + roles) ---- */
+const ROLES=["employee","manager","admin"];
+const rolLbl=r=>t(r);
+async function createAccount(name,email,pw,role){
+ const sec=initializeApp(app.options,"sec"+Date.now());
+ try{
+  const sa=getAuth(sec);
+  const c=await createUserWithEmailAndPassword(sa,email,pw);
+  try{await setDoc(doc(db,"users",c.user.uid),{name,email,role,active:true,createdAt:serverTimestamp()})}
+  catch(e){await c.user.delete().catch(()=>{});throw e}
+  await signOut(sa);
+ }finally{deleteApp(sec).catch(()=>{})}
+}
+function renderUsers(){
+ S.sel=null;$("#pn").classList.remove("o");
+ $("#cr").innerHTML=`<a>${L("Users","المستخدمون")}</a>`;
+ $("#ls").innerHTML=`<div class="uw"><div class="uf" id="uf"><h3>${L("Create account","إنشاء حساب")}</h3>
+  <label>${L("Name","الاسم")}<input id="un" type="text" autocomplete="off"></label>
+  <label>${t("em")}<input id="ue" type="text" dir="ltr" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+  <label>${L("Password (min 8)","كلمة المرور (8 على الأقل)")}<input id="up" type="text" dir="ltr" autocomplete="off" spellcheck="false"></label>
+  <label>${t("ro")}<select id="ur">${ROLES.map(r=>`<option value="${r}">${rolLbl(r)}</option>`).join("")}</select></label>
+  <button class="btn" id="uc">${L("Create","إنشاء")}</button><div class="msg" id="um"></div></div>
+  <div id="ul" class="mu">…</div></div>`;
+ const um=$("#um"),say=(m,ok)=>{um.textContent=m;um.className="msg "+(ok?"k":"e")};
+ $("#uc").onclick=async()=>{
+  const n=$("#un").value.trim(),e=$("#ue").value.trim(),p=$("#up").value,r=$("#ur").value;
+  if(!n||!e||!p)return say(L("Fill in all fields","املأ جميع الحقول"));
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e))return say(L("Invalid email","بريد غير صالح"));
+  if(p.length<8)return say(L("Password must be at least 8 characters","كلمة المرور 8 أحرف على الأقل"));
+  const b=$("#uc");b.disabled=true;say("");um.className="msg";
+  try{
+   await createAccount(n,e,p,r);
+   ["#un","#ue","#up"].forEach(s=>$(s).value="");
+   say(L("Account created. Give the person their email and password.","تم إنشاء الحساب. أعطِ الشخص بريده وكلمة المرور."),1);
+   await loadUsers();
+  }catch(err){
+   const c=err.code||"";
+   say(c==="auth/email-already-in-use"?L("This email already has an account","هذا البريد لديه حساب بالفعل"):c==="auth/invalid-email"?L("Invalid email","بريد غير صالح"):c==="auth/weak-password"?L("Password is too weak","كلمة المرور ضعيفة"):c==="permission-denied"?L("Not allowed (check Firestore rules)","غير مسموح (تحقق من قواعد Firestore)"):err.message);
+  }
+  b.disabled=false;
+ };
+ loadUsers();
+}
+async function loadUsers(){
+ let docs;
+ try{docs=(await getDocs(collection(db,"users"))).docs}catch(e){const el=$("#ul");if(el)el.textContent=e.code==="permission-denied"?L("Not allowed (check Firestore rules)","غير مسموح (تحقق من قواعد Firestore)"):e.message;return}
+ const el=$("#ul");if(!el)return;
+ const rows=docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+ el.className="";
+ el.innerHTML=rows.map(u=>{const me=u.id===uid();return`<div class="ur" data-u="${u.id}"><b class="${u.active===false?"off":""}">${esc(u.name||"—")}${me?` <span class="mu">(${L("you","أنت")})</span>`:""}</b>
+  <span class="mu ${u.active===false?"off":""}" dir="ltr">${esc(u.email||"—")}</span>
+  <select data-r ${me?"disabled":""}>${ROLES.map(r=>`<option value="${r}" ${u.role===r?"selected":""}>${rolLbl(r)}</option>`).join("")}</select>
+  <span class="acts">${u.email?`<button data-x="rs">${L("Reset password","إعادة تعيين كلمة المرور")}</button>`:""}${me?"":`<button data-x="ac">${u.active===false?L("Enable","تفعيل"):L("Disable","تعطيل")}</button>`}</span></div>`}).join("")||`<div class="empty">—</div>`;
+ el.onchange=async e=>{const s=e.target.closest("select[data-r]");if(!s)return;const id=s.closest(".ur").dataset.u;
+  try{await updateDoc(doc(db,"users",id),{role:s.value});toast(L("Role updated","تم تحديث الدور"))}catch(err){fail(err);loadUsers()}};
+ el.onclick=async e=>{const b=e.target.closest("button[data-x]");if(!b)return;const row=b.closest(".ur"),id=row.dataset.u,u=rows.find(x=>x.id===id);
+  try{
+   if(b.dataset.x==="ac"){await updateDoc(doc(db,"users",id),{active:u.active===false});loadUsers()}
+   if(b.dataset.x==="rs"){await sendPasswordResetEmail(auth,u.email);toast(L("Reset link sent","تم إرسال رابط إعادة التعيين"))}
+  }catch(err){fail(err)}};
+}
 </script></body></html>
