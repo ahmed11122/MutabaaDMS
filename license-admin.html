@@ -64,6 +64,11 @@ tr:last-child td{border-bottom:0}
 </head>
 <body>
 
+<!-- ============ LOADING ============ -->
+<div id="vLoad" class="login">
+ <div class="card" style="text-align:center"><div id="ld" style="color:var(--mu)">جارٍ التحميل…</div></div>
+</div>
+
 <!-- ============ LOGIN ============ -->
 <div id="vLogin" class="login hide">
  <div class="card">
@@ -81,6 +86,8 @@ tr:last-child td{border-bottom:0}
   <h2>هذا الحساب ليس مالك النظام</h2>
   <p style="color:var(--mu);margin:0 0 6px">في Firebase Console ← Firestore ← أنشئ مجموعة <b>owners</b> ثم مستنداً رقمه (Document ID) هو:</p>
   <div class="uid" id="uid"></div>
+  <button class="btn sm s" id="uidc">نسخ المعرف</button>
+  <div class="msg e" id="dr"></div>
   <p style="color:var(--mu);font-size:13px;margin:6px 0 14px">أضف حقلاً واحداً فقط مثل: name = "Ahmed" ثم حدّث الصفحة.</p>
   <button class="btn s" id="out1">تسجيل الخروج</button>
  </div>
@@ -135,18 +142,20 @@ tr:last-child td{border-bottom:0}
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
-import{getFirestore,collection,doc,getDoc,getDocs,setDoc,updateDoc,deleteDoc,serverTimestamp,deleteField}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+import{initializeFirestore,collection,doc,getDoc,getDocs,setDoc,updateDoc,deleteDoc,serverTimestamp,deleteField}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
 const app=initializeApp({apiKey:"AIzaSyBys_sC2GqWQNqekbf6Tr6jx6MudZs3vLQ",authDomain:"mutabaa-dms.firebaseapp.com",projectId:"mutabaa-dms",storageBucket:"mutabaa-dms.firebasestorage.app",messagingSenderId:"317850299351",appId:"1:317850299351:web:9b9bacfc6442296790b992"});
-const auth=getAuth(app),db=getFirestore(app);
+const auth=getAuth(app),db=initializeFirestore(app,{experimentalAutoDetectLongPolling:true});
 const $=s=>document.querySelector(s),DAY=864e5;
-const show=id=>["vLogin","vDeny","vApp"].forEach(v=>$("#"+v).classList.toggle("hide",v!==id));
+const show=id=>["vLoad","vLogin","vDeny","vApp"].forEach(v=>$("#"+v).classList.toggle("hide",v!==id));
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=ms=>ms?new Date(ms).toLocaleDateString("en-GB"):"—";
 const say=(el,t,c)=>{el.textContent=t;el.className="msg"+(c?" "+c:"")};
 const PLAN={30:"شهر",90:"3 أشهر",180:"6 أشهر",365:"سنة",0:"مدى الحياة"};
 const planName=d=>d===0?"مدى الحياة":(PLAN[d]||d+" يوم");
 let ALL=[];
+const withTimeout=(p,ms)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r({code:"timeout"}),ms))]);
+setTimeout(()=>{const l=$("#ld");if(l&&!$("#vLoad").classList.contains("hide"))l.innerHTML="الاتصال بـ Firebase بطيء أو محجوب.<br>جرّب نافذة التصفح الخفي (Ctrl+Shift+N) لأن بعض إضافات المتصفح تحجب الاتصال، أو جرّب شبكة أخرى."},12000);
 
 /* ---------- key generator: MTB-XXXX-XXXX-XXXX ---------- */
 function newKey(){
@@ -171,25 +180,28 @@ const ST={active:"فعّال",pending:"بانتظار التفعيل",expired:"�
 onAuthStateChanged(auth,async u=>{
  if(!u){show("vLogin");return}
  try{
-  const o=await getDoc(doc(db,"owners",u.uid));
-  if(!o.exists()){$("#uid").textContent=u.uid;show("vDeny");return}
- }catch(e){$("#uid").textContent=u.uid;show("vDeny");return}
+  const o=await withTimeout(getDoc(doc(db,"owners",u.uid)),25000);
+  if(!o.exists()){$("#uid").textContent=u.uid;say($("#dr"),"السبب: لا يوجد مستند في owners بهذا المعرف بالضبط. انسخ المعرف بزر النسخ والصقه عند إنشاء المستند (الحرف O والرقم 0 يتشابهان).","e");show("vDeny");return}
+ }catch(e){$("#uid").textContent=u.uid;say($("#dr"),"السبب: "+(e.code==="permission-denied"?"القواعد لم تُنشر أو لا تحتوي كتلة owners (permission-denied). انشر القواعد في مشروع mutabaa-dms.":e.code==="timeout"||e.code==="unavailable"?"تعذّر الاتصال بقاعدة البيانات ("+e.code+"). جرّب نافذة التصفح الخفي أو شبكة أخرى.":(e.code||e.message)),"e");show("vDeny");return}
  $("#who").textContent=u.email;show("vApp");load();
 });
 const login=async()=>{
  const b=$("#go");b.disabled=true;say($("#lm"),"…");
  try{await signInWithEmailAndPassword(auth,$("#em").value.trim(),$("#pw").value);say($("#lm"),"")}
- catch(e){say($("#lm"),"البريد أو كلمة المرور غير صحيحة","e")}
+ catch(e){
+  const c=e.code||"";
+  say($("#lm"),["auth/invalid-credential","auth/wrong-password","auth/user-not-found","auth/invalid-email"].includes(c)?"البريد أو كلمة المرور غير صحيحة. استخدم حساب تطبيق DMS (مشروع mutabaa-dms) وليس حساب الموقع.":c==="auth/network-request-failed"?"تحقق من اتصال الإنترنت":c==="auth/too-many-requests"?"محاولات كثيرة، حاول لاحقاً":c.startsWith("auth/requests-from-referer")?"مفتاح Firebase API مقيّد بمواقع محددة. أضف mutabaa.online إلى قائمة المواقع المسموحة.":"تعذّر الدخول: "+(c||e.message),"e")}
  b.disabled=false;
 };
 $("#go").onclick=login;$("#pw").onkeydown=e=>{if(e.key==="Enter")login()};
 $("#out1").onclick=$("#out2").onclick=()=>signOut(auth);
+$("#uidc").onclick=async e=>{try{await navigator.clipboard.writeText($("#uid").textContent);e.target.textContent="تم النسخ ✓"}catch(x){prompt("انسخ المعرف:",$("#uid").textContent)}};
 
 /* ---------- list ---------- */
 async function load(){
  say($("#tm"),"…");
  try{
-  const s=await getDocs(collection(db,"licenses"));
+  const s=await withTimeout(getDocs(collection(db,"licenses")),25000);
   ALL=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));
   say($("#tm"),"");draw();
  }catch(e){say($("#tm"),"تعذّر التحميل: "+(e.code||e.message)+" — تأكد من نشر قواعد Firestore ووجود مستند owners","e")}
