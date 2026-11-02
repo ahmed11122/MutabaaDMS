@@ -145,7 +145,7 @@ import{getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https:
 import{initializeFirestore,collection,doc,getDoc,getDocs,setDoc,updateDoc,deleteDoc,serverTimestamp,deleteField}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
 const app=initializeApp({apiKey:"AIzaSyBys_sC2GqWQNqekbf6Tr6jx6MudZs3vLQ",authDomain:"mutabaa-dms.firebaseapp.com",projectId:"mutabaa-dms",storageBucket:"mutabaa-dms.firebasestorage.app",messagingSenderId:"317850299351",appId:"1:317850299351:web:9b9bacfc6442296790b992"});
-const auth=getAuth(app),db=initializeFirestore(app,{experimentalAutoDetectLongPolling:true});
+const auth=getAuth(app),db=initializeFirestore(app,{experimentalAutoDetectLongPolling:true},"mutabaa-dms");
 const $=s=>document.querySelector(s),DAY=864e5;
 const show=id=>["vLoad","vLogin","vDeny","vApp"].forEach(v=>$("#"+v).classList.toggle("hide",v!==id));
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
