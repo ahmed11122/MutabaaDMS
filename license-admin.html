@@ -53,6 +53,8 @@ tr:last-child td{border-bottom:0}
 .mo{position:fixed;inset:0;background:rgba(10,15,25,.55);display:grid;place-items:center;padding:16px;z-index:10}
 .mb{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:22px;width:min(440px,100%);max-height:90vh;overflow:auto}
 .mb h3{margin:0 0 14px}
+.mb.wide{width:min(820px,100%)}
+.dv td,.dv th{font-size:13px;padding:8px 8px}
 .row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 .radio{display:flex;gap:8px;align-items:center;margin:8px 0;color:var(--tx);font-size:14px;cursor:pointer}
 .radio input{width:auto}
@@ -117,6 +119,9 @@ tr:last-child td{border-bottom:0}
    <div><label>عدد الحسابات المسموحة</label>
     <select id="nu"><option value="10" selected>10 حسابات</option><option value="20">20 حساباً</option><option value="0">غير محدود</option><option value="-1">عدد مخصص…</option></select></div>
    <div id="nuw" class="hide"><label>عدد الحسابات</label><input id="nuc" type="number" min="1" max="10000" value="15"></div>
+   <div><label>عدد الأجهزة (PC) المسموحة</label>
+    <select id="nv"><option value="5">5 أجهزة</option><option value="10" selected>10 أجهزة</option><option value="20">20 جهازاً</option><option value="0">غير محدود</option><option value="-1">عدد مخصص…</option></select></div>
+   <div id="nvw" class="hide"><label>عدد الأجهزة</label><input id="nvc" type="number" min="1" max="10000" value="15"></div>
    <div><label>ملاحظة (تظهر لك فقط)</label><input id="nn" placeholder="مثال: دفع 500,000 د.ع" maxlength="120"></div>
   </div>
   <label class="radio" style="margin-top:14px"><input type="checkbox" id="ns"> ابدأ احتساب المدة من الآن (وإلا تبدأ عند أول تفعيل من العميل)</label>
@@ -133,7 +138,7 @@ tr:last-child td{border-bottom:0}
   <h2>كل التراخيص <span id="cnt" style="color:var(--mu);font-weight:400;font-size:14px"></span></h2>
   <div class="tools"><input id="q" placeholder="بحث بالاسم أو المفتاح…"><button class="btn s" id="rf">تحديث</button></div>
   <div class="tw"><table>
-   <thead><tr><th>العميل</th><th>المفتاح</th><th>المدة</th><th>الحسابات</th><th>بدأ في</th><th>ينتهي</th><th>المتبقي</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+   <thead><tr><th>العميل</th><th>المفتاح</th><th>المدة</th><th>الحسابات</th><th>الأجهزة</th><th>بدأ في</th><th>ينتهي</th><th>المتبقي</th><th>الحالة</th><th>إجراءات</th></tr></thead>
    <tbody id="tb"></tbody>
   </table></div>
   <div class="msg" id="tm"></div>
@@ -219,24 +224,27 @@ function draw(){
   const paused=x.status==="suspended";
   return`<tr><td><b>${esc(x.customer)}</b>${x.note?`<div style="color:var(--mu);font-size:12.5px">${esc(x.note)}</div>`:""}</td>
   <td><span class="key">${esc(x.id)}</span></td>
-  <td>${x.expiresAt?"تاريخ محدد":planName(c.dd)}</td><td>${Number(x.maxUsers||0)>0?Number(x.maxUsers):"∞"}</td><td>${fmt(c.act)}</td><td>${c.dd===0&&!x.expiresAt?"—":fmt(c.exp)}</td><td>${leftTxt}</td>
+  <td>${x.expiresAt?"تاريخ محدد":planName(c.dd)}</td><td>${Number(x.maxUsers||0)>0?Number(x.maxUsers):"∞"}</td><td>${Number(x.maxDevices||0)>0?Number(x.maxDevices):"∞"}</td><td>${fmt(c.act)}</td><td>${c.dd===0&&!x.expiresAt?"—":fmt(c.exp)}</td><td>${leftTxt}</td>
   <td><span class="pill p-${c.st}">${ST[c.st]||esc(c.st)}</span></td>
   <td><div class="act">
    <button class="btn sm" data-a="renew" data-k="${esc(x.id)}">تجديد</button>
    <button class="btn sm s" data-a="seats" data-k="${esc(x.id)}">الحسابات</button>
+   <button class="btn sm s" data-a="pcs" data-k="${esc(x.id)}">الأجهزة</button>
    <button class="btn sm s" data-a="msg" data-k="${esc(x.id)}">نسخ رسالة</button>
    <button class="btn sm s" data-a="${paused?"resume":"pause"}" data-k="${esc(x.id)}">${paused?"استئناف":"إيقاف"}</button>
    ${x.status==="revoked"?"":`<button class="btn sm dg" data-a="revoke" data-k="${esc(x.id)}">إلغاء</button>`}
    <button class="btn sm dg" data-a="del" data-k="${esc(x.id)}">حذف</button>
-  </div></td></tr>`}).join(""):`<tr><td colspan="9" class="empty">لا توجد تراخيص</td></tr>`;
+  </div></td></tr>`}).join(""):`<tr><td colspan="10" class="empty">لا توجد تراخيص</td></tr>`;
 }
 $("#q").oninput=draw;$("#rf").onclick=load;
 
 /* ---------- create ---------- */
 $("#np").onchange=()=>$("#ndw").classList.toggle("hide",$("#np").value!=="-1");
 $("#nu").onchange=()=>$("#nuw").classList.toggle("hide",$("#nu").value!=="-1");
+$("#nv").onchange=()=>$("#nvw").classList.toggle("hide",$("#nv").value!=="-1");
 const seatTxt=n=>Number(n||0)>0?`${Number(n)} حساباً`:"غير محدود";
-const msgFor=(k,dd,mu)=>`مفتاح ترخيص Mutabaa DMS:\n${k}\n\nالمدة: ${planName(dd)}\nعدد الحسابات المسموحة: ${seatTxt(mu)}\nللتفعيل (من حساب مدير أو مسؤول فقط): افتح البرنامج ← الإعدادات ← الترخيص ← إدخال مفتاح الترخيص ← تفعيل.`;
+const pcTxt=n=>Number(n||0)>0?`${Number(n)} جهازاً`:"غير محدود";
+const msgFor=(k,dd,mu,md)=>`مفتاح ترخيص Mutabaa DMS:\n${k}\n\nالمدة: ${planName(dd)}\nعدد الحسابات المسموحة: ${seatTxt(mu)}\nعدد الأجهزة المسموحة: ${pcTxt(md)}\nللتفعيل (من حساب مدير أو مسؤول فقط): افتح البرنامج ← الإعدادات ← الترخيص ← إدخال مفتاح الترخيص ← تفعيل.`;
 const copy=async(t,el)=>{try{await navigator.clipboard.writeText(t);const o=el.textContent;el.textContent="تم النسخ ✓";setTimeout(()=>el.textContent=o,1400)}catch(e){prompt("انسخ النص:",t)}};
 $("#mk").onclick=async()=>{
  const cm=$("#cm"),cust=$("#nc").value.trim();
@@ -246,21 +254,23 @@ $("#mk").onclick=async()=>{
  let key;do{key=newKey()}while(ALL.some(x=>x.id===key));
  let mu=Number($("#nu").value);if(mu===-1)mu=Math.round(Number($("#nuc").value));
  if(!(mu>=0&&mu<=10000))return say(cm,"عدد الحسابات غير صحيح","e");
- const data={customer:cust,status:"active",durationDays:dd,maxUsers:mu,note:$("#nn").value.trim(),createdAt:serverTimestamp()};
+ let mv=Number($("#nv").value);if(mv===-1)mv=Math.round(Number($("#nvc").value));
+ if(!(mv>=0&&mv<=10000))return say(cm,"عدد الأجهزة غير صحيح","e");
+ const data={customer:cust,status:"active",durationDays:dd,maxUsers:mu,maxDevices:mv,note:$("#nn").value.trim(),createdAt:serverTimestamp()};
  if($("#ns").checked&&dd>0)data.activatedAt=serverTimestamp();
  $("#mk").disabled=true;say(cm,"…");
  try{
   await setDoc(doc(db,"licenses",key),data);
   say(cm,"تم إنشاء الترخيص","k");
   $("#nk").style.display="block";$("#nkv").textContent=key;
-  $("#nkc").onclick=e=>copy(key,e.target);$("#nkm").onclick=e=>copy(msgFor(key,dd,mu),e.target);
+  $("#nkc").onclick=e=>copy(key,e.target);$("#nkm").onclick=e=>copy(msgFor(key,dd,mu,mv),e.target);
   $("#nc").value="";$("#nn").value="";load();
  }catch(e){say(cm,"فشل الإنشاء: "+(e.code||e.message),"e")}
  $("#mk").disabled=false;
 };
 
 /* ---------- row actions ---------- */
-const modal=h=>{$("#mbx").innerHTML=h;$("#mo").classList.remove("hide")};
+const modal=(h,wide)=>{$("#mbx").innerHTML=h;$("#mbx").classList.toggle("wide",!!wide);$("#mo").classList.remove("hide")};
 const closeM=()=>$("#mo").classList.add("hide");
 $("#mo").onmousedown=e=>{if(e.target.id==="mo")closeM()};
 $("#tb").onclick=async e=>{
@@ -268,12 +278,13 @@ $("#tb").onclick=async e=>{
  const k=b.dataset.k,x=ALL.find(z=>z.id===k);if(!x)return;
  const ref=doc(db,"licenses",k),a=b.dataset.a;
  try{
-  if(a==="msg")return copy(msgFor(k,calc(x).dd,x.maxUsers),b);
+  if(a==="msg")return copy(msgFor(k,calc(x).dd,x.maxUsers,x.maxDevices),b);
+  if(a==="pcs")return pcs(x);
   if(a==="seats")return seats(x);
   if(a==="pause"){await updateDoc(ref,{status:"suspended"});return load()}
   if(a==="resume"){await updateDoc(ref,{status:"active"});return load()}
   if(a==="revoke"){if(confirm(`إلغاء ترخيص "${x.customer}" نهائياً؟`)){await updateDoc(ref,{status:"revoked"});load()}return}
-  if(a==="del"){if(confirm(`حذف ترخيص "${x.customer}" بالكامل؟ لا يمكن التراجع.`)){await deleteDoc(ref);load()}return}
+  if(a==="del"){if(confirm(`حذف ترخيص "${x.customer}" بالكامل؟ لا يمكن التراجع.`)){try{const ds=await getDocs(collection(db,"licenses",k,"devices"));for(const d of ds.docs)await deleteDoc(d.ref)}catch(e){}await deleteDoc(ref);load()}return}
   if(a==="renew")return renew(x);
  }catch(err){say($("#tm"),"فشلت العملية: "+(err.code||err.message),"e")}
 };
@@ -294,6 +305,54 @@ function seats(x){
   try{await updateDoc(doc(db,"licenses",x.id),{maxUsers:n});closeM();load()}
   catch(err){say($("#smg"),"فشل الحفظ: "+(err.code||err.message),"e");$("#sg").disabled=false}
  };
+}
+
+/* ---------- PCs (devices) of a license ---------- */
+const fmtT=v=>v&&v.toMillis?new Date(v.toMillis()).toLocaleString("en-GB",{dateStyle:"short",timeStyle:"short"}):"—";
+async function pcs(x){
+ const cur=Number(x.maxDevices||0),pre=[5,10,20,0].includes(cur);
+ modal(`<h3>الأجهزة: ${esc(x.customer)}</h3>
+ <div class="grid" style="margin-bottom:6px">
+  <div><label>الحد الأقصى للأجهزة</label>
+   <select id="vp"><option value="5" ${cur===5?"selected":""}>5 أجهزة</option><option value="10" ${cur===10?"selected":""}>10 أجهزة</option><option value="20" ${cur===20?"selected":""}>20 جهازاً</option><option value="0" ${cur===0?"selected":""}>غير محدود</option><option value="-1" ${pre?"":"selected"}>عدد مخصص…</option></select></div>
+  <div id="vpw" class="${pre?"hide":""}"><label>العدد</label><input id="vpc" type="number" min="1" max="10000" value="${pre?15:cur}"></div>
+  <div><button class="btn ok" id="vps">حفظ العدد</button></div>
+ </div>
+ <div class="msg" id="vmg"></div>
+ <div id="vl" style="color:var(--mu)">…</div>
+ <div class="row"><button class="btn s" id="vc">إغلاق</button></div>`,true);
+ $("#vc").onclick=closeM;
+ $("#vp").onchange=()=>$("#vpw").classList.toggle("hide",$("#vp").value!=="-1");
+ $("#vps").onclick=async()=>{
+  let n=Number($("#vp").value);if(n===-1)n=Math.round(Number($("#vpc").value));
+  if(!(n>=0&&n<=10000))return say($("#vmg"),"العدد غير صحيح","e");
+  try{await updateDoc(doc(db,"licenses",x.id),{maxDevices:n});x.maxDevices=n;say($("#vmg"),"تم الحفظ","k");load()}
+  catch(err){say($("#vmg"),"فشل الحفظ: "+(err.code||err.message),"e")}
+ };
+ const draw2=async()=>{
+  let ds;
+  try{ds=(await getDocs(collection(db,"licenses",x.id,"devices"))).docs}
+  catch(err){$("#vl").innerHTML=`<span style="color:var(--bad)">تعذّر التحميل: ${esc(err.code||err.message)} — انشر قواعد Firestore الجديدة (v49)</span>`;return}
+  ds.sort((a,b)=>(b.get("lastSeen")?.toMillis?.()||0)-(a.get("lastSeen")?.toMillis?.()||0));
+  const used=ds.filter(d=>d.get("blocked")!==true).length,mx=Number(x.maxDevices||0);
+  $("#vl").innerHTML=`<div style="margin-bottom:8px;color:var(--tx)">المستخدم: <b>${used}</b> ${mx?`من <b>${mx}</b>`:"(غير محدود)"} — الأجهزة المحظورة لا تحتسب</div>`+
+  (ds.length?`<div class="tw"><table class="dv"><thead><tr><th>الجهاز</th><th>آخر مستخدم</th><th>أول ظهور</th><th>آخر ظهور</th><th>الحالة</th><th></th></tr></thead><tbody>`+
+  ds.map(d=>{const bl=d.get("blocked")===true;return`<tr><td><b dir="auto">${esc(d.get("name"))}</b><div style="color:var(--mu);font-size:11.5px;direction:ltr;text-align:start">${esc(d.get("kind")==="web"?"web":"desktop")} · ${esc(d.id.slice(0,8))}</div></td>
+   <td dir="auto">${esc(d.get("lastUser")||"—")}</td><td>${fmtT(d.get("firstSeen"))}</td><td>${fmtT(d.get("lastSeen"))}</td>
+   <td><span class="pill ${bl?"p-revoked":"p-active"}">${bl?"محظور":"مسموح"}</span></td>
+   <td><div class="act"><button class="btn sm s" data-d="${esc(d.id)}" data-o="${bl?"unblock":"block"}">${bl?"إلغاء الحظر":"حظر"}</button><button class="btn sm dg" data-d="${esc(d.id)}" data-o="del">حذف</button></div></td></tr>`}).join("")+
+  `</tbody></table></div><div style="color:var(--mu);font-size:12.5px;margin-top:8px">حذف جهاز يحرّر مقعده فوراً (إذا فتح الجهاز البرنامج ثانيةً وكان هناك مقعد فارغ فسيُسجَّل من جديد). للمنع الدائم استخدم «حظر».</div>`:`<div class="empty">لا توجد أجهزة مسجّلة بعد</div>`);
+  $("#vl").onclick=async e=>{
+   const b=e.target.closest("button[data-d]");if(!b)return;
+   const r=doc(db,"licenses",x.id,"devices",b.dataset.d),o=b.dataset.o;
+   try{
+    if(o==="del"){if(!confirm("حذف هذا الجهاز وتحرير مقعده؟"))return;await deleteDoc(r)}
+    else await updateDoc(r,{blocked:o==="block"});
+    draw2();
+   }catch(err){say($("#vmg"),"فشلت العملية: "+(err.code||err.message),"e")}
+  };
+ };
+ draw2();
 }
 function renew(x){
  const c=calc(x),expired=c.st==="expired"||c.st==="revoked"||c.st==="suspended";
