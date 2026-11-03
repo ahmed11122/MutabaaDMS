@@ -114,6 +114,9 @@ tr:last-child td{border-bottom:0}
      <option value="-1">مدة مخصصة…</option>
     </select></div>
    <div id="ndw" class="hide"><label>عدد الأيام</label><input id="nd" type="number" min="1" max="3650" value="45"></div>
+   <div><label>عدد الحسابات المسموحة</label>
+    <select id="nu"><option value="10" selected>10 حسابات</option><option value="20">20 حساباً</option><option value="0">غير محدود</option><option value="-1">عدد مخصص…</option></select></div>
+   <div id="nuw" class="hide"><label>عدد الحسابات</label><input id="nuc" type="number" min="1" max="10000" value="15"></div>
    <div><label>ملاحظة (تظهر لك فقط)</label><input id="nn" placeholder="مثال: دفع 500,000 د.ع" maxlength="120"></div>
   </div>
   <label class="radio" style="margin-top:14px"><input type="checkbox" id="ns"> ابدأ احتساب المدة من الآن (وإلا تبدأ عند أول تفعيل من العميل)</label>
@@ -130,7 +133,7 @@ tr:last-child td{border-bottom:0}
   <h2>كل التراخيص <span id="cnt" style="color:var(--mu);font-weight:400;font-size:14px"></span></h2>
   <div class="tools"><input id="q" placeholder="بحث بالاسم أو المفتاح…"><button class="btn s" id="rf">تحديث</button></div>
   <div class="tw"><table>
-   <thead><tr><th>العميل</th><th>المفتاح</th><th>المدة</th><th>بدأ في</th><th>ينتهي</th><th>المتبقي</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+   <thead><tr><th>العميل</th><th>المفتاح</th><th>المدة</th><th>الحسابات</th><th>بدأ في</th><th>ينتهي</th><th>المتبقي</th><th>الحالة</th><th>إجراءات</th></tr></thead>
    <tbody id="tb"></tbody>
   </table></div>
   <div class="msg" id="tm"></div>
@@ -145,7 +148,7 @@ import{getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https:
 import{initializeFirestore,collection,doc,getDoc,getDocs,setDoc,updateDoc,deleteDoc,serverTimestamp,deleteField}from"https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
 const app=initializeApp({apiKey:"AIzaSyBys_sC2GqWQNqekbf6Tr6jx6MudZs3vLQ",authDomain:"mutabaa-dms.firebaseapp.com",projectId:"mutabaa-dms",storageBucket:"mutabaa-dms.firebasestorage.app",messagingSenderId:"317850299351",appId:"1:317850299351:web:9b9bacfc6442296790b992"});
-const auth=getAuth(app),db=initializeFirestore(app,{experimentalAutoDetectLongPolling:true},"mutabaa-dms");
+const auth=getAuth(app),db=initializeFirestore(app,{experimentalAutoDetectLongPolling:true});
 const $=s=>document.querySelector(s),DAY=864e5;
 const show=id=>["vLoad","vLogin","vDeny","vApp"].forEach(v=>$("#"+v).classList.toggle("hide",v!==id));
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -216,21 +219,24 @@ function draw(){
   const paused=x.status==="suspended";
   return`<tr><td><b>${esc(x.customer)}</b>${x.note?`<div style="color:var(--mu);font-size:12.5px">${esc(x.note)}</div>`:""}</td>
   <td><span class="key">${esc(x.id)}</span></td>
-  <td>${x.expiresAt?"تاريخ محدد":planName(c.dd)}</td><td>${fmt(c.act)}</td><td>${c.dd===0&&!x.expiresAt?"—":fmt(c.exp)}</td><td>${leftTxt}</td>
+  <td>${x.expiresAt?"تاريخ محدد":planName(c.dd)}</td><td>${Number(x.maxUsers||0)>0?Number(x.maxUsers):"∞"}</td><td>${fmt(c.act)}</td><td>${c.dd===0&&!x.expiresAt?"—":fmt(c.exp)}</td><td>${leftTxt}</td>
   <td><span class="pill p-${c.st}">${ST[c.st]||esc(c.st)}</span></td>
   <td><div class="act">
    <button class="btn sm" data-a="renew" data-k="${esc(x.id)}">تجديد</button>
+   <button class="btn sm s" data-a="seats" data-k="${esc(x.id)}">الحسابات</button>
    <button class="btn sm s" data-a="msg" data-k="${esc(x.id)}">نسخ رسالة</button>
    <button class="btn sm s" data-a="${paused?"resume":"pause"}" data-k="${esc(x.id)}">${paused?"استئناف":"إيقاف"}</button>
    ${x.status==="revoked"?"":`<button class="btn sm dg" data-a="revoke" data-k="${esc(x.id)}">إلغاء</button>`}
    <button class="btn sm dg" data-a="del" data-k="${esc(x.id)}">حذف</button>
-  </div></td></tr>`}).join(""):`<tr><td colspan="8" class="empty">لا توجد تراخيص</td></tr>`;
+  </div></td></tr>`}).join(""):`<tr><td colspan="9" class="empty">لا توجد تراخيص</td></tr>`;
 }
 $("#q").oninput=draw;$("#rf").onclick=load;
 
 /* ---------- create ---------- */
 $("#np").onchange=()=>$("#ndw").classList.toggle("hide",$("#np").value!=="-1");
-const msgFor=(k,dd)=>`مفتاح ترخيص Mutabaa DMS:\n${k}\n\nالمدة: ${planName(dd)}\nللتفعيل: افتح البرنامج ← الإعدادات ← الترخيص ← إدخال مفتاح الترخيص ← تفعيل.`;
+$("#nu").onchange=()=>$("#nuw").classList.toggle("hide",$("#nu").value!=="-1");
+const seatTxt=n=>Number(n||0)>0?`${Number(n)} حساباً`:"غير محدود";
+const msgFor=(k,dd,mu)=>`مفتاح ترخيص Mutabaa DMS:\n${k}\n\nالمدة: ${planName(dd)}\nعدد الحسابات المسموحة: ${seatTxt(mu)}\nللتفعيل (من حساب مدير أو مسؤول فقط): افتح البرنامج ← الإعدادات ← الترخيص ← إدخال مفتاح الترخيص ← تفعيل.`;
 const copy=async(t,el)=>{try{await navigator.clipboard.writeText(t);const o=el.textContent;el.textContent="تم النسخ ✓";setTimeout(()=>el.textContent=o,1400)}catch(e){prompt("انسخ النص:",t)}};
 $("#mk").onclick=async()=>{
  const cm=$("#cm"),cust=$("#nc").value.trim();
@@ -238,14 +244,16 @@ $("#mk").onclick=async()=>{
  let dd=Number($("#np").value);if(dd===-1)dd=Math.round(Number($("#nd").value));
  if(!(dd>=0&&dd<=3650))return say(cm,"عدد الأيام غير صحيح","e");
  let key;do{key=newKey()}while(ALL.some(x=>x.id===key));
- const data={customer:cust,status:"active",durationDays:dd,note:$("#nn").value.trim(),createdAt:serverTimestamp()};
+ let mu=Number($("#nu").value);if(mu===-1)mu=Math.round(Number($("#nuc").value));
+ if(!(mu>=0&&mu<=10000))return say(cm,"عدد الحسابات غير صحيح","e");
+ const data={customer:cust,status:"active",durationDays:dd,maxUsers:mu,note:$("#nn").value.trim(),createdAt:serverTimestamp()};
  if($("#ns").checked&&dd>0)data.activatedAt=serverTimestamp();
  $("#mk").disabled=true;say(cm,"…");
  try{
   await setDoc(doc(db,"licenses",key),data);
   say(cm,"تم إنشاء الترخيص","k");
   $("#nk").style.display="block";$("#nkv").textContent=key;
-  $("#nkc").onclick=e=>copy(key,e.target);$("#nkm").onclick=e=>copy(msgFor(key,dd),e.target);
+  $("#nkc").onclick=e=>copy(key,e.target);$("#nkm").onclick=e=>copy(msgFor(key,dd,mu),e.target);
   $("#nc").value="";$("#nn").value="";load();
  }catch(e){say(cm,"فشل الإنشاء: "+(e.code||e.message),"e")}
  $("#mk").disabled=false;
@@ -260,7 +268,8 @@ $("#tb").onclick=async e=>{
  const k=b.dataset.k,x=ALL.find(z=>z.id===k);if(!x)return;
  const ref=doc(db,"licenses",k),a=b.dataset.a;
  try{
-  if(a==="msg")return copy(msgFor(k,calc(x).dd),b);
+  if(a==="msg")return copy(msgFor(k,calc(x).dd,x.maxUsers),b);
+  if(a==="seats")return seats(x);
   if(a==="pause"){await updateDoc(ref,{status:"suspended"});return load()}
   if(a==="resume"){await updateDoc(ref,{status:"active"});return load()}
   if(a==="revoke"){if(confirm(`إلغاء ترخيص "${x.customer}" نهائياً؟`)){await updateDoc(ref,{status:"revoked"});load()}return}
@@ -268,6 +277,24 @@ $("#tb").onclick=async e=>{
   if(a==="renew")return renew(x);
  }catch(err){say($("#tm"),"فشلت العملية: "+(err.code||err.message),"e")}
 };
+function seats(x){
+ const cur=Number(x.maxUsers||0),pre=[10,20,0].includes(cur);
+ modal(`<h3>عدد الحسابات: ${esc(x.customer)}</h3>
+ <label>الحد الأقصى للحسابات</label>
+ <select id="sp"><option value="10" ${cur===10?"selected":""}>10 حسابات</option><option value="20" ${cur===20?"selected":""}>20 حساباً</option><option value="0" ${cur===0?"selected":""}>غير محدود</option><option value="-1" ${pre?"":"selected"}>عدد مخصص…</option></select>
+ <div id="spw" class="${pre?"hide":""}" style="margin-top:10px"><label>العدد</label><input id="spc" type="number" min="1" max="10000" value="${pre?15:cur}"></div>
+ <div class="msg" id="smg"></div>
+ <div class="row"><button class="btn s" id="sc">إلغاء</button><button class="btn ok" id="sg">حفظ</button></div>`);
+ $("#sp").onchange=()=>$("#spw").classList.toggle("hide",$("#sp").value!=="-1");
+ $("#sc").onclick=closeM;
+ $("#sg").onclick=async()=>{
+  let n=Number($("#sp").value);if(n===-1)n=Math.round(Number($("#spc").value));
+  if(!(n>=0&&n<=10000))return say($("#smg"),"العدد غير صحيح","e");
+  $("#sg").disabled=true;
+  try{await updateDoc(doc(db,"licenses",x.id),{maxUsers:n});closeM();load()}
+  catch(err){say($("#smg"),"فشل الحفظ: "+(err.code||err.message),"e");$("#sg").disabled=false}
+ };
+}
 function renew(x){
  const c=calc(x),expired=c.st==="expired"||c.st==="revoked"||c.st==="suspended";
  modal(`<h3>تجديد: ${esc(x.customer)}</h3>
